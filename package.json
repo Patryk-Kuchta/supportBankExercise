@@ -20,7 +20,7 @@
     "typescript": "^5.6.3"
   },
   "bin": {
-    "my-cli": "./dist/index.js"
+    "my-cli": "./build/index.js"
   },
   "scripts": {
     "build": "tsc",
