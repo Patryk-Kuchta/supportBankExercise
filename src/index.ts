@@ -22,18 +22,18 @@ class Account {
   }
 
   public toString(): string {
-    return `${this.name} (£${this.balance.toFixed(2)}).`
+    return `${this.name} (£${this.balance.toFixed(2)})`
   }
 
   public getAccountStatement(): string {
     let result = this.toString()
-    result += '*'.repeat(5) + ' Incoming Transactions ' + '*'.repeat(5)
+    result += '*'.repeat(5) + ' Incoming Transactions ' + '*'.repeat(5) + '\n'
     for (let transaction of this.incomingTransactions) {
-      result += transaction.toString()
+      result += transaction.toString() + '\n'
     }
-    result += '*'.repeat(5) + ' Outgoing Transactions ' + '*'.repeat(5)
+    result += '*'.repeat(5) + ' Outgoing Transactions ' + '*'.repeat(5) + '\n'
     for (let transaction of this.outgoingTransactions) {
-      result += transaction.toString()
+      result += transaction.toString() + '\n'
     }
     result += '*'.repeat(30)
     return result
@@ -86,8 +86,10 @@ class Transaction {
   }
 
   public toString(): string {
-    return `[${this.date}] ${this.origin.toString()} sent ${this.amount} to 
-            ${this.destination.toString()} for "${this.narrative}"`
+    return (
+      `[${this.date}] ${this.origin.toString()} sent ${this.amount} to ` +
+      `${this.destination.toString()} for "${this.narrative}"`
+    )
   }
 
   public getAmountDue(): number {
