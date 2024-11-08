@@ -25,7 +25,7 @@ class Account {
     return `${this.name} (£${this.balance}).`
   }
 
-  public accountStatement(): string {
+  public getAccountStatement(): string {
     let result = this.toString()
     result += '*'.repeat(5) + ' Incoming Transactions ' + '*'.repeat(5)
     for (let transaction of this.incomingTransactions) {
@@ -41,20 +41,26 @@ class Account {
 
   private static nameToAccount: Map<string, Account> = new Map()
 
-  public static getOrCreate(name) {
+  public static getAccountWithName(name, createIfNotExistent = false) {
     if (Account.nameToAccount.has(name)) {
       return Account.nameToAccount.get(name)
-    } else {
+    } else if (createIfNotExistent) {
       return new Account(name)
     }
   }
 
   public addIncomingTransaction(transaction: Transaction) {
+    this.balance += transaction.amount
     this.incomingTransactions.push(transaction)
   }
 
   public addOutgoingTransaction(transaction: Transaction) {
+    this.balance -= transaction.amount
     this.outgoingTransactions.push(transaction)
+  }
+
+  public static getAccountNames() {
+    return Array.from(this.nameToAccount.keys())
   }
 }
 
@@ -83,8 +89,8 @@ class Transaction {
 
   public static parseTransaction(csvEntry: string) {
     const parts = csvEntry.split(',')
-    const origin = Account.getOrCreate(parts[1])
-    const destination = Account.getOrCreate(parts[2])
+    const origin = Account.getAccountWithName(parts[1], true)
+    const destination = Account.getAccountWithName(parts[2], true)
     return {
       transaction: new Transaction(
         origin,
@@ -110,3 +116,7 @@ function loadTheTransactionFile(filename: string) {
 }
 
 loadTheTransactionFile('./data/Transactions2014.csv')
+
+for (let account of Account.getAccountNames()) {
+  console.log(Account.getAccountWithName(account).getAccountStatement())
+}
