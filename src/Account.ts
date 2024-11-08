@@ -1,13 +1,13 @@
 import Transaction from './Transaction'
 
 class Account {
-  private name: string
+  private readonly name: string
   private balance: number
 
-  private incomingTransactions: Transaction[]
-  private outgoingTransactions: Transaction[]
+  private readonly incomingTransactions: Transaction[]
+  private readonly outgoingTransactions: Transaction[]
 
-  public constructor(name, balance = 0) {
+  public constructor(name: string, balance = 0) {
     if (Account.nameToAccount.has(name)) {
       throw new Error('Account with this name already exists')
     }
@@ -41,7 +41,7 @@ class Account {
 
   private static nameToAccount: Map<string, Account> = new Map()
 
-  public static getAccountWithName(name, createIfNotExistent = false) {
+  public static getAccountWithName(name: string, createIfNotExistent = false) {
     if (Account.nameToAccount.has(name)) {
       return Account.nameToAccount.get(name)
     } else if (createIfNotExistent) {

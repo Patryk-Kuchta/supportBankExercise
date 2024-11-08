@@ -2,11 +2,11 @@ import moment, { Moment } from 'moment'
 import Account from './Account'
 
 class Transaction {
-  private origin: Account
-  private destination: Account
-  private amount: number
-  private date: Moment
-  private narrative: string
+  private readonly origin: Account
+  private readonly destination: Account
+  private readonly amount: number
+  private readonly date: Moment
+  private readonly narrative: string
 
   private constructor(
     originName: Account,
