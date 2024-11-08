@@ -2,7 +2,6 @@ import { question } from 'readline-sync'
 import { listAccount, listAll } from './UserActions'
 import initialize from './Initialize'
 
-// Initialize the data
 initialize()
 
 let userAnswer = 'HELP'
@@ -40,7 +39,6 @@ while (userAnswer !== 'QUIT') {
     }
   }
 
-  // Prompt for the next command
   userAnswer = question('Enter command: ')
 }
 
