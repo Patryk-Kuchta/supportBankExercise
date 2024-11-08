@@ -22,7 +22,7 @@ class Account {
   }
 
   public toString(): string {
-    return `${this.name} (£${this.balance}).`
+    return `${this.name} (£${this.balance.toFixed(2)}).`
   }
 
   public getAccountStatement(): string {
@@ -50,12 +50,12 @@ class Account {
   }
 
   public addIncomingTransaction(transaction: Transaction) {
-    this.balance += transaction.amount
+    this.balance += transaction.getAmountDue()
     this.incomingTransactions.push(transaction)
   }
 
   public addOutgoingTransaction(transaction: Transaction) {
-    this.balance -= transaction.amount
+    this.balance -= transaction.getAmountDue()
     this.outgoingTransactions.push(transaction)
   }
 
@@ -65,38 +65,47 @@ class Account {
 }
 
 class Transaction {
-  public origin: Account
-  public destination: Account
-  public amount: number
-  public date: Date
+  private origin: Account
+  private destination: Account
+  private amount: number
+  private date: Date
+  private narrative: string
 
   private constructor(
     originName: Account,
     destinationName: Account,
     amount: number,
-    dateString: string
+    dateString: string,
+    narrative: string
   ) {
     this.origin = originName
     this.destination = destinationName
     this.amount = amount
     this.date = new Date(dateString)
+    this.narrative = narrative
   }
 
   public toString(): string {
-    return `${this.origin.toString()} sent ${this.amount} to 
-            ${this.destination.toString()}`
+    return `[${this.date}] ${this.origin.toString()} sent ${this.amount} to 
+            ${this.destination.toString()} for "${this.narrative}"`
+  }
+
+  public getAmountDue(): number {
+    return this.amount
   }
 
   public static parseTransaction(csvEntry: string) {
     const parts = csvEntry.split(',')
     const origin = Account.getAccountWithName(parts[1], true)
     const destination = Account.getAccountWithName(parts[2], true)
+
     return {
       transaction: new Transaction(
         origin,
         destination,
-        Number(parts[3]),
-        parts[0]
+        Number(parts[4]),
+        parts[0],
+        parts[3]
       ),
       origin,
       destination,
@@ -117,6 +126,10 @@ function loadTheTransactionFile(filename: string) {
 
 loadTheTransactionFile('./data/Transactions2014.csv')
 
-for (let account of Account.getAccountNames()) {
-  console.log(Account.getAccountWithName(account).getAccountStatement())
-}
+console.log(
+  Account.getAccountNames()
+    .map((account) => {
+      return Account.getAccountWithName(account).getAccountStatement()
+    })
+    .join('\n\n')
+)
