@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs'
+import moment, { Moment } from 'moment'
 
 class Account {
   private name: string
@@ -26,7 +27,7 @@ class Account {
   }
 
   public getAccountStatement(): string {
-    let result = this.toString()
+    let result = this.toString() + '\n'
     result += '*'.repeat(5) + ' Incoming Transactions ' + '*'.repeat(5) + '\n'
     for (let transaction of this.incomingTransactions) {
       result += transaction.toString() + '\n'
@@ -68,7 +69,7 @@ class Transaction {
   private origin: Account
   private destination: Account
   private amount: number
-  private date: Date
+  private date: Moment
   private narrative: string
 
   private constructor(
@@ -81,14 +82,15 @@ class Transaction {
     this.origin = originName
     this.destination = destinationName
     this.amount = amount
-    this.date = new Date(dateString)
+    this.date = moment(dateString, 'DD/MM/YYYY')
     this.narrative = narrative
   }
 
   public toString(): string {
     return (
-      `[${this.date}] ${this.origin.toString()} sent ${this.amount} to ` +
-      `${this.destination.toString()} for "${this.narrative}"`
+      `[${this.date.format('DD MMM YYYY')}] ${this.origin.toString()} sent £` +
+      `${this.amount.toFixed(2)} to ${this.destination.toString()} for ` +
+      `"${this.narrative}"`
     )
   }
 
@@ -119,10 +121,12 @@ function loadTheTransactionFile(filename: string) {
   const data = readFileSync(filename, 'utf8')
 
   for (let line of data.split('\n').slice(1)) {
-    let lineParsed = Transaction.parseTransaction(line)
+    if (line.length > 0) {
+      let lineParsed = Transaction.parseTransaction(line)
 
-    lineParsed.origin.addIncomingTransaction(lineParsed.transaction)
-    lineParsed.destination.addOutgoingTransaction(lineParsed.transaction)
+      lineParsed.origin.addIncomingTransaction(lineParsed.transaction)
+      lineParsed.destination.addOutgoingTransaction(lineParsed.transaction)
+    }
   }
 }
 
