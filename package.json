@@ -1,0 +1,29 @@
+{
+  "name": "supportbank",
+  "version": "1.0.0",
+  "description": "Learning Goals",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Patryk-Kuchta/supportBankExercise.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Patryk-Kuchta/supportBankExercise/issues"
+  },
+  "homepage": "https://github.com/Patryk-Kuchta/supportBankExercise#readme",
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "bin": {
+    "my-cli": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts"
+  }
+}
