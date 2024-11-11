@@ -1,5 +1,6 @@
 import moment, { Moment } from "moment";
 import Account from "./Account";
+import log4js from "log4js";
 
 class Transaction {
   private readonly origin: Account;
@@ -11,14 +12,25 @@ class Transaction {
   private constructor(
     origin: Account,
     destination: Account,
-    amount: number,
+    amountString: string,
     dateString: string,
     narrative: string
   ) {
     this.origin = origin;
     this.destination = destination;
-    this.amount = amount;
+
+    this.amount = Number(amountString);
+    if (Number.isNaN(this.amount)) {
+      const logger = log4js.getLogger("logs/debug.log");
+      logger.error(`Provided amount: ${amountString} is not a valid number`);
+    }
+
     this.date = moment(dateString, "DD/MM/YYYY");
+    if (!this.date.isValid()) {
+      const logger = log4js.getLogger("logs/debug.log");
+      logger.warn(`Provided date: ${dateString} is not valid`);
+    }
+
     this.narrative = narrative;
 
     origin.addOutgoingTransaction(this);
@@ -45,7 +57,7 @@ class Transaction {
     const newTransaction = new Transaction(
       origin,
       destination,
-      Number(parts[4]),
+      parts[4],
       parts[0],
       parts[3]
     );
