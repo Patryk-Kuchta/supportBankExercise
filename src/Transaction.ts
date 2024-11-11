@@ -30,7 +30,9 @@ class Transaction {
     this.date = moment(dateString, "DD/MM/YYYY");
     if (!this.date.isValid()) {
       const logger = log4js.getLogger("logs/debug.log");
-      logger.warn(`Provided date: ${dateString} is not valid`);
+      const errorMsg = `Provided date: ${dateString} is not valid`;
+      logger.warn(errorMsg);
+      console.warn(errorMsg);
     }
 
     this.narrative = narrative;
