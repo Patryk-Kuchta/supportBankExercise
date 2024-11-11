@@ -1,6 +1,6 @@
 import Account from "../src/models/Account"
 import * as fs from "fs"
-import loadFile from "../src/parsers/RecordParser"
+import loadFile from "../src/parsers/loadFile"
 import Bank from "../src/Bank"
 
 const mockLogger = {
