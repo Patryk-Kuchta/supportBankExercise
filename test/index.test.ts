@@ -1,4 +1,6 @@
 import Account from "../src/Account"
+import * as fs from "fs"
+import loadFile from "../src/RecordParser"
 import Bank from "../src/Bank"
 
 const mockLogger = {
@@ -26,6 +28,13 @@ function detailedInputIntoCSVLine(detailedInput: DetailedInput) {
     `${detailedInput.amount.input}`;
 }
 
+function feedOneCSVLineToTheSystem(input: string) {
+  input = '\n' + input; // add simulated headers
+  const tempDataDir = './data/test/temp.csv';
+  fs.writeFileSync(tempDataDir, input);
+  return loadFile(tempDataDir)[0];
+}
+
 describe('CSV Transaction Parsing', () => {
 
   describe('valid transactions', () => {
@@ -51,8 +60,8 @@ describe('CSV Transaction Parsing', () => {
       };
 
       const inputLine = detailedInputIntoCSVLine(inputDetailed);
-      const output = Bank.getInstance().parseTransaction(inputLine);
-      const transactionRepresentation = output.transaction.toString();
+      const output = feedOneCSVLineToTheSystem(inputLine);
+      const transactionRepresentation = output.toString();
 
       it('should start with the correct date', () => {
         expect(transactionRepresentation).toMatch(
@@ -85,15 +94,7 @@ describe('CSV Transaction Parsing', () => {
       });
 
       it('should store the correct amount', () => {
-        expect(output.transaction.getAmountDue()).toBeCloseTo(inputDetailed.amount.input);
-      });
-
-      it('should link to the correct sender account', () => {
-        expect(output.origin).toBe(Bank.getInstance().getAccountWithName(inputDetailed.sender.input));
-      });
-
-      it('should link to the correct receiver account', () => {
-        expect(output.destination).toBe(Bank.getInstance().getAccountWithName(inputDetailed.receiver.input));
+        expect(output.getAmountDue()).toBeCloseTo(inputDetailed.amount.input);
       });
     });
 
@@ -122,8 +123,8 @@ describe('CSV Transaction Parsing', () => {
       Bank.getInstance().getAccountWithName(inputDetailed.receiver.input, true);
 
       const inputLine = detailedInputIntoCSVLine(inputDetailed);
-      const output = Bank.getInstance().parseTransaction(inputLine);
-      const transactionRepresentation = output.transaction.toString();
+      const output = feedOneCSVLineToTheSystem(inputLine);
+      const transactionRepresentation = output.toString();
 
       it('should list the correct sender', () => {
         expect(transactionRepresentation).toMatch(
@@ -164,8 +165,8 @@ describe('CSV Transaction Parsing', () => {
       const inputLine = detailedInputIntoCSVLine(inputDetailed);
 
       it('should state that the date is invalid', () => {
-        const output = Bank.getInstance().parseTransaction(inputLine);
-        const transactionRepresentation = output.transaction.toString();
+        const output = feedOneCSVLineToTheSystem(inputLine);
+        const transactionRepresentation = output.toString();
 
         expect(transactionRepresentation).toMatch(
           new RegExp(`^\\[${inputDetailed.date.output}\\] `)
@@ -177,7 +178,7 @@ describe('CSV Transaction Parsing', () => {
         const loggerWarnSpy = jest.spyOn(mockLogger, 'warn');
         const consoleWarnSpy = jest.spyOn(console, 'warn');
 
-        Bank.getInstance().parseTransaction(inputLine);
+        feedOneCSVLineToTheSystem(inputLine);
 
         expect(loggerWarnSpy).toHaveBeenCalled();
         expect(consoleWarnSpy).toHaveBeenCalled();
@@ -191,7 +192,7 @@ describe('CSV Transaction Parsing', () => {
       const inputLine = "01.01.1970,A,B,C,1️⃣"
 
       it('should throw a TypeError', () => {
-        expect(() => Bank.getInstance().parseTransaction(inputLine)).toThrow(TypeError);
+        expect(() => feedOneCSVLineToTheSystem(inputLine)).toThrow(TypeError);
       });
 
       it('should output an error to the log file', () => {
@@ -199,7 +200,7 @@ describe('CSV Transaction Parsing', () => {
 
         // Trigger the error to check the logging
         try {
-          Bank.getInstance().parseTransaction(inputLine);
+          feedOneCSVLineToTheSystem(inputLine);
         } catch (error) {}
 
         expect(loggerErrorSpy).toHaveBeenCalled();
@@ -277,7 +278,7 @@ describe('Bank statement', () => {
 
   for (const transaction of simulatedTransactions) {
     const input = detailedInputIntoCSVLine(transaction)
-    Bank.getInstance().parseTransaction(input)
+    feedOneCSVLineToTheSystem(input)
 
     if (transaction.sender.input == "A") {
       balance -= transaction.amount.input;

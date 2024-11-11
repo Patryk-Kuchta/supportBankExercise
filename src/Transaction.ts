@@ -1,5 +1,5 @@
 import moment, { Moment } from "moment";
-import log4js from "log4js";
+import Account from "./Account";
 
 class Transaction {
   private readonly originName: string;
@@ -11,29 +11,15 @@ class Transaction {
   public constructor(
     origin: string,
     destination: string,
-    amountString: string,
-    dateString: string,
+    amount: number,
+    date: Moment,
     narrative: string
   ) {
     this.originName = origin;
     this.destinationNAme = destination;
 
-    this.amount = Number(amountString);
-    if (Number.isNaN(this.amount)) {
-      const logger = log4js.getLogger("logs/debug.log");
-      const errorMsg = `Provided amount: ${amountString} is not a valid number`;
-      logger.error(errorMsg);
-      throw new TypeError(errorMsg);
-    }
-
-    this.date = moment(dateString, "DD/MM/YYYY");
-    if (!this.date.isValid()) {
-      const logger = log4js.getLogger("logs/debug.log");
-      const errorMsg = `Provided date: ${dateString} is not valid`;
-      logger.warn(errorMsg);
-      console.warn(errorMsg);
-    }
-
+    this.amount = amount;
+    this.date = date;
     this.narrative = narrative;
   }
 
