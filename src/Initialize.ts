@@ -26,7 +26,7 @@ function initialize() {
   }
 
   loadTheTransactionFile("./data/Transactions2014.csv");
-  loadTheTransactionFile("./data/DodgyTransactions2015.csv");
+  loadTheTransactionFile("./data/DodgyTransactions2015reviewed.csv");
 }
 
 export default initialize;
