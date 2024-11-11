@@ -23,7 +23,7 @@ class Transaction {
     if (Number.isNaN(this.amount)) {
       const logger = log4js.getLogger("logs/debug.log");
       const errorMsg = `Provided amount: ${amountString} is not a valid number`;
-      logger.error(`Provided amount: ${amountString} is not a valid number`);
+      logger.error(errorMsg);
       throw new TypeError(errorMsg);
     }
 
