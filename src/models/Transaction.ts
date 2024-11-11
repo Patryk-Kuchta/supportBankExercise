@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import { Moment } from "moment";
 import Account from "./Account";
 
 class Transaction {
