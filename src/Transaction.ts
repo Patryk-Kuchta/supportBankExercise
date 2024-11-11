@@ -1,5 +1,4 @@
 import moment, { Moment } from "moment";
-import Account from "./Account";
 import log4js from "log4js";
 
 class Transaction {
