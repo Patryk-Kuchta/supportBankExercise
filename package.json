@@ -19,12 +19,13 @@
     "prepublishOnly": "pinst --disable",
     "dev": "ts-node src/index.ts",
     "build": "tsc && npm run test:build",
-    "test": "jest --passWithNoTests"
+    "test": "jest"
   },
   "lint-staged": {
     "src/**/*.ts": "npm run format"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/node": "^15.0.1",
     "@types/readline-sync": "^1.4.8",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
