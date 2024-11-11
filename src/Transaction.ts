@@ -9,17 +9,20 @@ class Transaction {
   private readonly narrative: string;
 
   private constructor(
-    originName: Account,
-    destinationName: Account,
+    origin: Account,
+    destination: Account,
     amount: number,
     dateString: string,
     narrative: string
   ) {
-    this.origin = originName;
-    this.destination = destinationName;
+    this.origin = origin;
+    this.destination = destination;
     this.amount = amount;
     this.date = moment(dateString, "DD/MM/YYYY");
     this.narrative = narrative;
+
+    origin.addOutgoingTransaction(this);
+    destination.addIncomingTransaction(this);
   }
 
   public toString(): string {
@@ -39,14 +42,16 @@ class Transaction {
     const origin = Account.getAccountWithName(parts[1], true);
     const destination = Account.getAccountWithName(parts[2], true);
 
+    const newTransaction = new Transaction(
+      origin,
+      destination,
+      Number(parts[4]),
+      parts[0],
+      parts[3]
+    );
+
     return {
-      transaction: new Transaction(
-        origin,
-        destination,
-        Number(parts[4]),
-        parts[0],
-        parts[3]
-      ),
+      transaction: newTransaction,
       origin,
       destination,
     };

@@ -7,10 +7,7 @@ function initialize() {
 
     for (let line of data.split("\n").slice(1)) {
       if (line.length > 0) {
-        let lineParsed = Transaction.parseTransaction(line);
-
-        lineParsed.origin.addIncomingTransaction(lineParsed.transaction);
-        lineParsed.destination.addOutgoingTransaction(lineParsed.transaction);
+        Transaction.parseTransaction(line);
       }
     }
   }
