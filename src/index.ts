@@ -1,6 +1,7 @@
 import { question } from "readline-sync";
 import { listAccount, listAll } from "./UserActions";
 import initialize from "./Initialize";
+import userCLIMessages from "../userMessages/cli.json";
 
 initialize();
 
@@ -9,15 +10,7 @@ let userAnswer = "HELP";
 while (userAnswer !== "QUIT") {
   switch (userAnswer) {
     case "HELP": {
-      console.log("Available commands:");
-      console.log(
-        "  LIST ALL       - Lists each person's name and total amount owed or owed to them."
-      );
-      console.log(
-        "  LIST [Account] - Lists every transaction for the specified account by name."
-      );
-      console.log("  HELP           - Shows this available commands list.");
-      console.log("  QUIT           - Exits the program.");
+      console.log(userCLIMessages.help);
       break;
     }
     case "LIST ALL": {
@@ -32,14 +25,12 @@ while (userAnswer !== "QUIT") {
       break;
     }
     default: {
-      console.log(
-        "Unknown command. Type HELP for a list of available commands."
-      );
+      console.log(userCLIMessages.unknown);
       break;
     }
   }
 
-  userAnswer = question("Enter command: ");
+  userAnswer = question(userCLIMessages.prompt);
 }
 
-console.log("Goodbye!");
+console.log(userCLIMessages.farewell);
