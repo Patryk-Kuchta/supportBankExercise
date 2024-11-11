@@ -1,5 +1,6 @@
 import Transaction from "../src/Transaction"
 import Account from "../src/Account"
+import log4js from 'log4js';
 
 type InputAndOptionallyOutput<T> = {input: T, output?: T}
 
@@ -10,6 +11,13 @@ type DetailedInput = {
   narrative: InputAndOptionallyOutput<string>
   amount: InputAndOptionallyOutput<number>
 }
+
+jest.mock('log4js', () => ({
+  getLogger: jest.fn(() => ({
+    warn: jest.fn(),
+    error: jest.fn()
+  })),
+}));
 
 describe('CSV Transaction Parsing', () => {
   function detailedInputIntoCSVLine(detailedInput: DetailedInput) {
@@ -87,10 +95,6 @@ describe('CSV Transaction Parsing', () => {
       });
     });
 
-  })
-
-  describe('valid transactions', () => {
-
     describe('with existing users', () => {
 
       const inputDetailed: DetailedInput = {
@@ -140,4 +144,55 @@ describe('CSV Transaction Parsing', () => {
       });
     });
   })
+
+  describe('invalid transactions', () => {
+
+    describe('invalid date', () => {
+      const inputDetailed: DetailedInput = {
+        date: {
+          input: "I want to cause chaos!",
+          output: "Invalid date"
+        },
+        sender: {
+          input: "Sender A"
+        },
+        receiver: {
+          input: "Receiver B"
+        },
+        narrative: {
+          input: "With the intent of testing the system"
+        },
+        amount: {
+          input: 7.81
+        }
+      };
+
+      const inputLine = detailedInputIntoCSVLine(inputDetailed);
+
+      it('should state that the date is invalid', () => {
+        const output = Transaction.parseTransaction(inputLine);
+        const transactionRepresentation = output.transaction.toString();
+
+        expect(transactionRepresentation).toMatch(
+          new RegExp(`^\\[${inputDetailed.date.output}\\] `)
+        );
+      });
+
+      it('should warn the user sender', () => {
+        const logger = log4js.getLogger("logs/debug.log");
+
+        const loggerWarnSpy = jest.spyOn(logger, 'warn');
+        const consoleWarnSpy = jest.spyOn(console, 'warn');
+
+        Transaction.parseTransaction(inputLine);
+
+        expect(loggerWarnSpy).toHaveBeenCalled();
+        expect(consoleWarnSpy).toHaveBeenCalled();
+
+        loggerWarnSpy.mockRestore();
+        consoleWarnSpy.mockRestore();
+      });
+    });
+  });
+
 });
