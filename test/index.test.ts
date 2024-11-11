@@ -1,12 +1,11 @@
 import Transaction from "../src/Transaction"
 import Account from "../src/Account"
 
-// Create a mock logger instance that is shared across the application
 const mockLogger = {
   warn: jest.fn(),
+  error: jest.fn()
 };
 
-// Mock `log4js.getLogger` to return the same `mockLogger` instance
 jest.mock('log4js', () => ({
   getLogger: jest.fn(() => mockLogger),
 }));
@@ -194,6 +193,28 @@ describe('CSV Transaction Parsing', () => {
         consoleWarnSpy.mockRestore();
       });
     });
+
+    describe('invalid number', () => {
+      const inputLine = "01.01.1970,A,B,C,1️⃣"
+
+      it('should throw a TypeError', () => {
+        expect(() => Transaction.parseTransaction(inputLine)).toThrow(TypeError);
+      });
+
+      it('should output an error to the log file', () => {
+        const loggerErrorSpy = jest.spyOn(mockLogger, 'error');
+
+        // Trigger the error to check the logging
+        try {
+          Transaction.parseTransaction(inputLine);
+        } catch (error) {}
+
+        expect(loggerErrorSpy).toHaveBeenCalled();
+        loggerErrorSpy.mockRestore();
+      });
+    });
   });
+
+
 
 });
