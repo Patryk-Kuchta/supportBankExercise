@@ -1,6 +1,6 @@
 import log4js from "log4js";
-import Transaction from "./Transaction";
-import Account from "./Account";
+import Transaction from "../models/Transaction";
+import Account from "../models/Account";
 import moment from "moment";
 import { readFileSync } from "fs";
 
