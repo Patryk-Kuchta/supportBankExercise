@@ -2,6 +2,8 @@ import Account from "../src/models/Account"
 import * as fs from "fs"
 import loadFile from "../src/parsers/loadFile"
 import Bank from "../src/Bank"
+import { DetailedInput } from "./helpers/Types"
+import { detailedInputIntoCSVLine, feedOneCSVLineToTheSystem } from "./helpers/CSVhelpers"
 
 const mockLogger = {
   warn: jest.fn(),
@@ -11,29 +13,6 @@ const mockLogger = {
 jest.mock('log4js', () => ({
   getLogger: jest.fn(() => mockLogger),
 }));
-
-type InputAndOptionallyOutput<T> = {input: T, output?: T}
-
-type DetailedInput = {
-  date: {input: string, output: string},
-  sender: InputAndOptionallyOutput<string>,
-  receiver: InputAndOptionallyOutput<string>,
-  narrative: InputAndOptionallyOutput<string>
-  amount: InputAndOptionallyOutput<number>
-}
-
-function detailedInputIntoCSVLine(detailedInput: DetailedInput) {
-  return `${detailedInput.date.input},${detailedInput.sender.input},` +
-    `${detailedInput.receiver.input},${detailedInput.narrative.input},` +
-    `${detailedInput.amount.input}`;
-}
-
-function feedOneCSVLineToTheSystem(input: string) {
-  input = '\n' + input; // add simulated headers
-  const tempDataDir = './data/test/temp.csv';
-  fs.writeFileSync(tempDataDir, input);
-  return loadFile(tempDataDir)[0];
-}
 
 describe('CSV Transaction Parsing', () => {
 
@@ -209,124 +188,3 @@ describe('CSV Transaction Parsing', () => {
     });
   });
 });
-
-describe('Bank', () => {
-  it('should print all existing account names', () => {
-    Bank.getInstance()['nameToAccount'] = new Map<string, Account>() // reset
-
-    const names = ['A B', 'B C', 'C D'];
-
-    for (const name of names) {
-      Bank.getInstance().getAccountWithName(name, true);
-    }
-
-    const accountNameList = Bank.getInstance().getAccountNames()
-
-    expect(accountNameList).toEqual(names);
-  })
-
-  it('should throw account not found, when that is the case', () => {
-    Bank.getInstance()['nameToAccount'] = new Map<string, Account>() // reset
-
-    const nonExistentName = "I don't exist :((((((";
-
-    expect(() => Bank.getInstance().getAccountWithName(nonExistentName)).toThrow(Error)
-  });
-});
-
-describe('Bank statement', () => {
-  const simulatedTransactions : DetailedInput[] = [
-    {
-      date: {
-        input: "01/02/1998",
-        output: "01 Feb 1998"
-      },
-      sender: {
-        input: "A"
-      },
-      receiver: {
-        input: "B"
-      },
-      narrative: {
-        input: "First Test Transaction"
-      },
-      amount: {
-        input: 7.81
-      }
-    },
-    {
-      date: {
-        input: "01/02/1998",
-        output: "01 Feb 1998"
-      },
-      sender: {
-        input: "B"
-      },
-      receiver: {
-        input: "A"
-      },
-      narrative: {
-        input: "Second Test Transaction"
-      },
-      amount: {
-        input: 2.31
-      }
-    }
-  ]
-
-  let balance = 0;
-
-  for (const transaction of simulatedTransactions) {
-    const input = detailedInputIntoCSVLine(transaction)
-    feedOneCSVLineToTheSystem(input)
-
-    if (transaction.sender.input == "A") {
-      balance -= transaction.amount.input;
-    } else {
-      balance += transaction.amount.input;
-    }
-  }
-
-  const accountStatement = Bank.getInstance().getAccountWithName('A').getAccountStatement()
-
-  it('should state the correct name and balance (on Side A)', () => {
-    expect(accountStatement).toMatch(
-      new RegExp(`^A \\(£${balance.toFixed(2)}\\)\n`)
-    );
-  });
-
-  for (const transaction of simulatedTransactions) {
-    describe(transaction.narrative.input, () => {
-
-      it('should start with the correct date (on Side A)', () => {
-        expect(accountStatement).toMatch(
-          new RegExp(`\n\\[${transaction.date.output}\\] `)
-        );
-      });
-
-      it('should list the correct sender (on Side A)', () => {
-        expect(accountStatement).toMatch(
-          new RegExp(`\\] ${transaction.sender.input} sent `)
-        );
-      });
-
-      it('should list the correct amount (on Side A)', () => {
-        expect(accountStatement).toMatch(
-          new RegExp(` sent £${transaction.amount.input.toFixed(2)} to`)
-        );
-      });
-
-      it('should list the receiver sender correctly (on Side A)', () => {
-        expect(accountStatement).toMatch(
-          new RegExp(` to ${transaction.receiver.input} for `)
-        );
-      });
-
-      it('should list the correct narrative (on Side A)', () => {
-        expect(accountStatement).toMatch(
-          new RegExp(` for "${transaction.narrative.input}"`)
-        );
-      });
-    })
-  }
-})
