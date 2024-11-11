@@ -1,6 +1,15 @@
 import Transaction from "../src/Transaction"
 import Account from "../src/Account"
-import log4js from 'log4js';
+
+// Create a mock logger instance that is shared across the application
+const mockLogger = {
+  warn: jest.fn(),
+};
+
+// Mock `log4js.getLogger` to return the same `mockLogger` instance
+jest.mock('log4js', () => ({
+  getLogger: jest.fn(() => mockLogger),
+}));
 
 type InputAndOptionallyOutput<T> = {input: T, output?: T}
 
@@ -11,13 +20,6 @@ type DetailedInput = {
   narrative: InputAndOptionallyOutput<string>
   amount: InputAndOptionallyOutput<number>
 }
-
-jest.mock('log4js', () => ({
-  getLogger: jest.fn(() => ({
-    warn: jest.fn(),
-    error: jest.fn()
-  })),
-}));
 
 describe('CSV Transaction Parsing', () => {
   function detailedInputIntoCSVLine(detailedInput: DetailedInput) {
@@ -179,9 +181,8 @@ describe('CSV Transaction Parsing', () => {
       });
 
       it('should warn the user sender', () => {
-        const logger = log4js.getLogger("logs/debug.log");
 
-        const loggerWarnSpy = jest.spyOn(logger, 'warn');
+        const loggerWarnSpy = jest.spyOn(mockLogger, 'warn');
         const consoleWarnSpy = jest.spyOn(console, 'warn');
 
         Transaction.parseTransaction(inputLine);
