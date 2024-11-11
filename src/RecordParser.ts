@@ -58,8 +58,47 @@ class CSVParser extends RecordParser {
   }
 }
 
+type expectedJSONEntry = {
+  Date: string;
+  FromAccount: string;
+  ToAccount: string;
+  Narrative: string;
+  Amount: number;
+};
+
+class JSONParser extends RecordParser {
+  public parseFile(text: string): Transaction[] {
+    const parsedTransactions: Transaction[] = [];
+    const list = JSON.parse(text) as expectedJSONEntry[];
+
+    for (let entry of list) {
+      const date = moment(entry.Date, "YYYY-MM-DDTHH:mm:ss");
+
+      if (!date.isValid()) {
+        this.warnUserAboutDateFormat(entry.Date);
+      }
+
+      const origin = Account.getAccountWithName(entry.FromAccount, true);
+      const destination = Account.getAccountWithName(entry.ToAccount, true);
+
+      const newTransaction = new Transaction(
+        origin,
+        destination,
+        entry.Amount,
+        date,
+        entry.Narrative
+      );
+
+      parsedTransactions.push(newTransaction);
+    }
+
+    return parsedTransactions;
+  }
+}
+
 const fileExtensionToSubclass = new Map<string, RecordParser>([
   ["csv", new CSVParser()],
+  ["json", new JSONParser()],
 ]);
 
 function loadFile(filename: string) {
