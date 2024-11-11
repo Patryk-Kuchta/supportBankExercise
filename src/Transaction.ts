@@ -22,7 +22,9 @@ class Transaction {
     this.amount = Number(amountString);
     if (Number.isNaN(this.amount)) {
       const logger = log4js.getLogger("logs/debug.log");
+      const errorMsg = `Provided amount: ${amountString} is not a valid number`;
       logger.error(`Provided amount: ${amountString} is not a valid number`);
+      throw new TypeError(errorMsg);
     }
 
     this.date = moment(dateString, "DD/MM/YYYY");
