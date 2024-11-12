@@ -1,6 +1,8 @@
 import Account from "../src/models/Account"
 import { DetailedInput } from "./helpers/Types"
-import { detailedInputIntoCSVLine, feedOneCSVLineToTheSystem } from "./helpers/CSVhelpers"
+import { feedOneCSVEntryToTheSystem, feedOneCSVLineToTheSystem } from "./helpers/CSVhelpers"
+import { feedOneJSONEntryToTheSystem } from "./helpers/JSONhelpers"
+import moment from "moment"
 
 const mockLogger = {
   warn: jest.fn(),
@@ -14,8 +16,14 @@ jest.mock('log4js', () => ({
 const parserPreSets = [
   {
     parserName: 'CSV',
-    formatMethod: detailedInputIntoCSVLine,
-    feedMethod: feedOneCSVLineToTheSystem
+    feedMethod: feedOneCSVEntryToTheSystem,
+    formatDate: (dateString: string) => dateString
+  },
+  {
+    parserName: 'JSON',
+    feedMethod: feedOneJSONEntryToTheSystem,
+    formatDate: (dateString: string) =>
+      moment(dateString, "DD/MM/YYYY").format("YYYY-MM-DDTHH:mm:ss")
   }
 ]
 
@@ -27,7 +35,7 @@ for (const preset of parserPreSets) {
       describe('with new users', () => {
         const inputDetailed: DetailedInput = {
           date: {
-            input: "01/02/1998",
+            input: preset.formatDate("01/02/1998"),
             output: "01 Feb 1998"
           },
           sender: {
@@ -44,8 +52,7 @@ for (const preset of parserPreSets) {
           }
         };
 
-        const inputLine = preset.formatMethod(inputDetailed);
-        const output = preset.feedMethod(inputLine);
+        const output = preset.feedMethod(inputDetailed);
         const transactionRepresentation = output.toString();
 
         it('should start with the correct date', () => {
@@ -87,7 +94,7 @@ for (const preset of parserPreSets) {
 
         const inputDetailed: DetailedInput = {
           date: {
-            input: "01/02/1998",
+            input: preset.formatDate("01/02/1998"),
             output: "01 Feb 1998"
           },
           sender: {
@@ -107,8 +114,7 @@ for (const preset of parserPreSets) {
         const sender = Account.getAccountWithName(inputDetailed.sender.input, true);
         const receiver = Account.getAccountWithName(inputDetailed.receiver.input, true);
 
-        const inputLine = preset.formatMethod(inputDetailed);
-        const output = preset.feedMethod(inputLine);
+        const output = preset.feedMethod(inputDetailed);
         const transactionRepresentation = output.toString();
 
         it('should list the correct sender', () => {
@@ -155,10 +161,8 @@ for (const preset of parserPreSets) {
           }
         };
 
-        const inputLine = preset.formatMethod(inputDetailed);
-
         it('should state that the date is invalid', () => {
-          const output = preset.feedMethod(inputLine);
+          const output = preset.feedMethod(inputDetailed);
           const transactionRepresentation = output.toString();
 
           expect(transactionRepresentation).toMatch(
@@ -171,7 +175,7 @@ for (const preset of parserPreSets) {
           const loggerWarnSpy = jest.spyOn(mockLogger, 'warn');
           const consoleWarnSpy = jest.spyOn(console, 'warn');
 
-          preset.feedMethod(inputLine);
+          preset.feedMethod(inputDetailed);
 
           expect(loggerWarnSpy).toHaveBeenCalled();
           expect(consoleWarnSpy).toHaveBeenCalled();
@@ -180,27 +184,26 @@ for (const preset of parserPreSets) {
           consoleWarnSpy.mockRestore();
         });
       });
-
-      describe('invalid number', () => {
-        const inputLine = "01.01.1970,A,B,C,1️⃣"
-
-        it('should throw a TypeError', () => {
-          expect(() => preset.feedMethod(inputLine)).toThrow(TypeError);
-        });
-
-        it('should output an error to the log file', () => {
-          const loggerErrorSpy = jest.spyOn(mockLogger, 'error');
-
-          // Trigger the error to check the logging
-          try {
-            preset.feedMethod(inputLine);
-          } catch (error) {}
-
-          expect(loggerErrorSpy).toHaveBeenCalled();
-          loggerErrorSpy.mockRestore();
-        });
-      });
     });
   });
 }
 
+describe('Test the invalid number case', () => {
+  const inputLine = "01.01.1970,A,B,C,1️⃣"
+
+  it('should throw a TypeError', () => {
+    expect(() => feedOneCSVLineToTheSystem(inputLine)).toThrow(TypeError);
+  });
+
+  it('should output an error to the log file', () => {
+    const loggerErrorSpy = jest.spyOn(mockLogger, 'error');
+
+    // Trigger the error to check the logging
+    try {
+      feedOneCSVLineToTheSystem(inputLine);
+    } catch (error) {}
+
+    expect(loggerErrorSpy).toHaveBeenCalled();
+    loggerErrorSpy.mockRestore();
+  });
+});
