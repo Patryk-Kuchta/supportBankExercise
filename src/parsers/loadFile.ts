@@ -1,11 +1,13 @@
 import { readFileSync } from "fs";
 import RecordParser from "./RecordParser";
-import CSVParser from "./CSVParser";
-import JSONParser from "./JSONParser";
+import CSVRecordParser from "./CSVParser";
+import JSONRecordParser from "./JSONParser";
+import XMLRecordParser from "./XMLParser";
 
 const fileExtensionToSubclass = new Map<string, RecordParser>([
-  ["csv", new CSVParser()],
-  ["json", new JSONParser()],
+  ["csv", new CSVRecordParser()],
+  ["json", new JSONRecordParser()],
+  ["xml", new XMLRecordParser()],
 ]);
 
 function loadFile(filename: string) {
