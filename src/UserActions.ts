@@ -12,10 +12,10 @@ export function listAll() {
 }
 
 export function listAccount(accountName: string) {
-  let accountFound = Bank.getInstance().getAccountWithName(accountName);
+  let account = Bank.getInstance().getAccountWithName(accountName);
 
-  if (accountFound) {
-    console.log(accountFound.getAccountStatement());
+  if (account) {
+    console.log(account.getAccountStatement());
   } else {
     throw new Error("Account with the provided name does not exist.");
   }
