@@ -1,34 +1,30 @@
 import moment, { Moment } from "moment";
-import Account from "./Account";
 
 class Transaction {
-  private readonly origin: Account;
-  private readonly destination: Account;
+  private readonly originName: string;
+  private readonly destinationNAme: string;
   private readonly amount: number;
   private readonly date: Moment;
   private readonly narrative: string;
 
   public constructor(
-    origin: Account,
-    destination: Account,
+    origin: string,
+    destination: string,
     amount: number,
     dateString: string,
     narrative: string
   ) {
-    this.origin = origin;
-    this.destination = destination;
+    this.originName = origin;
+    this.destinationNAme = destination;
     this.amount = amount;
     this.date = moment(dateString, "DD/MM/YYYY");
     this.narrative = narrative;
-
-    origin.addOutgoingTransaction(this);
-    destination.addIncomingTransaction(this);
   }
 
   public toString(): string {
     return (
-      `[${this.date.format("DD MMM YYYY")}] ${this.origin.toString()} sent £` +
-      `${this.amount.toFixed(2)} to ${this.destination.toString()} for ` +
+      `[${this.date.format("DD MMM YYYY")}] ${this.originName} sent £` +
+      `${this.amount.toFixed(2)} to ${this.destinationNAme} for ` +
       `"${this.narrative}"`
     );
   }

@@ -38,12 +38,15 @@ class Bank {
     const destination = this.getAccountWithName(parts[2], true);
 
     const newTransaction = new Transaction(
-      origin,
-      destination,
+      parts[1],
+      parts[2],
       Number(parts[4]),
       parts[0],
       parts[3]
     );
+
+    origin.addOutgoingTransaction(newTransaction);
+    destination.addIncomingTransaction(newTransaction);
 
     return {
       transaction: newTransaction,
