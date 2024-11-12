@@ -50,14 +50,14 @@ class XMLRecordParser extends RecordParser {
         true
       );
 
-      const excelEpoch = moment("1900-01-01", "YYYY-MM-DD");
-      const date = excelEpoch.add(
-        Number(supportTransaction.attr_Date) - 1,
-        "days"
-      );
+      const dateNumber = Number(supportTransaction.attr_Date);
 
-      if (!date.isValid()) {
+      const excelEpoch = moment("1900-01-01", "YYYY-MM-DD");
+      let date = excelEpoch.add(dateNumber - 1, "days");
+
+      if (!date.isValid() || Number.isNaN(dateNumber)) {
         this.warnUserAboutDateFormat(supportTransaction.attr_Date);
+        date = moment("not-a-date");
       }
 
       const newTransaction = new Transaction(
