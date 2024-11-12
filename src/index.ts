@@ -1,9 +1,9 @@
 import { question } from "readline-sync";
 import { listAccount, listAll } from "./UserActions";
-import initialize from "./Initialize";
 import userCLIMessages from "../userMessages/cli.json";
+import LoadTransactionFile from "./LoadTransactionFile";
 
-initialize();
+LoadTransactionFile("./data/Transactions2014.csv");
 
 let userAnswer = "HELP";
 
