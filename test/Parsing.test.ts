@@ -2,6 +2,7 @@ import { DetailedInput } from "./helpers/Types"
 import { feedOneCSVEntryToTheSystem, feedOneCSVLineToTheSystem } from "./helpers/CSVhelpers"
 import { feedOneJSONEntryToTheSystem } from "./helpers/JSONhelpers"
 import moment from "moment"
+import { feedOneXMLEntryToTheSystem } from "./helpers/XMLhelpers"
 import Bank from "../src/models/Bank"
 
 const mockLogger = {
@@ -24,6 +25,29 @@ const parserPreSets = [
     feedMethod: feedOneJSONEntryToTheSystem,
     formatDate: (dateString: string) =>
       moment(dateString, "DD/MM/YYYY").format("YYYY-MM-DDTHH:mm:ss")
+  },
+  {
+    parserName: 'XML',
+    feedMethod: feedOneXMLEntryToTheSystem,
+    formatDate: (dateStr: string) => {
+      // Parse the date in DD/MM/YYYY format
+      const date = moment(dateStr, "DD/MM/YYYY");
+      if (!date.isValid()) {
+        throw new Error("Invalid date format");
+      }
+
+      const excelEpoch = moment("1900-01-01", "YYYY-MM-DD");
+
+      // Calculate the difference in days between the date and the Excel epoch
+      let serialNumber = date.diff(excelEpoch, "days") + 1; // +1 to match Excel's start at 1
+
+      // Adjust for Excel’s leap year bug
+      if (date.isAfter("1900-02-28")) {
+        serialNumber += 1;
+      }
+
+      return serialNumber.toString();
+    }
   }
 ]
 

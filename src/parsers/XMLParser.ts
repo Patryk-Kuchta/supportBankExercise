@@ -14,9 +14,11 @@ type SupportTransactionXMLRecord = {
   attr_Date: string;
 };
 
-type XMLDocumentStructure = {
+export type XMLDocumentStructure = {
   TransactionList: {
-    SupportTransaction: SupportTransactionXMLRecord[];
+    SupportTransaction:
+      | SupportTransactionXMLRecord[]
+      | SupportTransactionXMLRecord;
   };
 };
 
@@ -32,8 +34,13 @@ class XMLRecordParser extends RecordParser {
     const parser = new XMLParser(options);
     let dataAsObject = parser.parse(text) as XMLDocumentStructure;
 
-    for (let supportTransaction of dataAsObject.TransactionList
-      .SupportTransaction) {
+    let transactionList = Array.isArray(
+      dataAsObject.TransactionList.SupportTransaction
+    )
+      ? dataAsObject.TransactionList.SupportTransaction
+      : [dataAsObject.TransactionList.SupportTransaction];
+
+    for (let supportTransaction of transactionList) {
       const origin = Account.getAccountWithName(
         supportTransaction.Parties.From,
         true
