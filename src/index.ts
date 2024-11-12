@@ -1,36 +1,28 @@
-import { question } from "readline-sync";
+import { promptCLLoop } from "readline-sync";
 import { listAccount, listAll } from "./UserActions";
 import userCLIMessages from "../userMessages/cli.json";
 import LoadTransactionFile from "./LoadTransactionFile";
 
 LoadTransactionFile("./data/Transactions2014.csv");
 
-let userAnswer = "HELP";
-
-while (userAnswer !== "QUIT") {
-  switch (userAnswer) {
-    case "HELP": {
-      console.log(userCLIMessages.help);
-      break;
-    }
-    case "LIST ALL": {
+promptCLLoop({
+  HELP: function () {
+    console.log(userCLIMessages.help);
+  },
+  LIST: function (userName, surnameLetter = "") {
+    if (userName === "ALL") {
       listAll();
-      break;
-    }
-    case userAnswer.match(/^LIST\s+(.+)/)?.input: {
-      const accountName = userAnswer.replace(/^LIST\s+/i, "").trim();
-      console.log(accountName);
+    } else {
+      const fullUserName = surnameLetter
+        ? userName + " " + surnameLetter
+        : userName;
+      console.log(fullUserName);
 
-      listAccount(accountName);
-      break;
+      listAccount(fullUserName);
     }
-    default: {
-      console.log(userCLIMessages.unknown);
-      break;
-    }
-  }
-
-  userAnswer = question(userCLIMessages.prompt);
-}
-
-console.log(userCLIMessages.farewell);
+  },
+  QUIT: function () {
+    console.log(userCLIMessages.farewell);
+    return true;
+  },
+});
