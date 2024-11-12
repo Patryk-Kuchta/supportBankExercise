@@ -1,5 +1,5 @@
-import Transaction from "../src/Transaction"
 import Account from "../src/Account"
+import Bank from "../src/Bank"
 
 const mockLogger = {
   warn: jest.fn(),
@@ -51,7 +51,7 @@ describe('CSV Transaction Parsing', () => {
       };
 
       const inputLine = detailedInputIntoCSVLine(inputDetailed);
-      const output = Transaction.parseTransaction(inputLine);
+      const output = Bank.getInstance().parseTransaction(inputLine);
       const transactionRepresentation = output.transaction.toString();
 
       it('should start with the correct date', () => {
@@ -89,11 +89,11 @@ describe('CSV Transaction Parsing', () => {
       });
 
       it('should link to the correct sender account', () => {
-        expect(output.origin).toBe(Account.getAccountWithName(inputDetailed.sender.input));
+        expect(output.origin).toBe(Bank.getInstance().getAccountWithName(inputDetailed.sender.input));
       });
 
       it('should link to the correct receiver account', () => {
-        expect(output.destination).toBe(Account.getAccountWithName(inputDetailed.receiver.input));
+        expect(output.destination).toBe(Bank.getInstance().getAccountWithName(inputDetailed.receiver.input));
       });
     });
 
@@ -118,11 +118,11 @@ describe('CSV Transaction Parsing', () => {
         }
       };
 
-      const sender = Account.getAccountWithName(inputDetailed.sender.input, true);
-      const receiver = Account.getAccountWithName(inputDetailed.receiver.input, true);
+      const sender = Bank.getInstance().getAccountWithName(inputDetailed.sender.input, true);
+      const receiver = Bank.getInstance().getAccountWithName(inputDetailed.receiver.input, true);
 
       const inputLine = detailedInputIntoCSVLine(inputDetailed);
-      const output = Transaction.parseTransaction(inputLine);
+      const output = Bank.getInstance().parseTransaction(inputLine);
       const transactionRepresentation = output.transaction.toString();
 
       it('should list the correct sender', () => {
@@ -172,7 +172,7 @@ describe('CSV Transaction Parsing', () => {
       const inputLine = detailedInputIntoCSVLine(inputDetailed);
 
       it('should state that the date is invalid', () => {
-        const output = Transaction.parseTransaction(inputLine);
+        const output = Bank.getInstance().parseTransaction(inputLine);
         const transactionRepresentation = output.transaction.toString();
 
         expect(transactionRepresentation).toMatch(
@@ -185,7 +185,7 @@ describe('CSV Transaction Parsing', () => {
         const loggerWarnSpy = jest.spyOn(mockLogger, 'warn');
         const consoleWarnSpy = jest.spyOn(console, 'warn');
 
-        Transaction.parseTransaction(inputLine);
+        Bank.getInstance().parseTransaction(inputLine);
 
         expect(loggerWarnSpy).toHaveBeenCalled();
         expect(consoleWarnSpy).toHaveBeenCalled();
@@ -199,7 +199,7 @@ describe('CSV Transaction Parsing', () => {
       const inputLine = "01.01.1970,A,B,C,1️⃣"
 
       it('should throw a TypeError', () => {
-        expect(() => Transaction.parseTransaction(inputLine)).toThrow(TypeError);
+        expect(() => Bank.getInstance().parseTransaction(inputLine)).toThrow(TypeError);
       });
 
       it('should output an error to the log file', () => {
@@ -207,7 +207,7 @@ describe('CSV Transaction Parsing', () => {
 
         // Trigger the error to check the logging
         try {
-          Transaction.parseTransaction(inputLine);
+          Bank.getInstance().parseTransaction(inputLine);
         } catch (error) {}
 
         expect(loggerErrorSpy).toHaveBeenCalled();
@@ -232,7 +232,7 @@ describe('Account', () => {
       new Account(name);
     }
 
-    const accountNameList = Account.getAccountNames()
+    const accountNameList = Bank.getInstance().getAccountNames()
 
     expect(accountNameList).toEqual(names);
   })
@@ -282,7 +282,7 @@ describe('Bank statement', () => {
 
   for (const transaction of simulatedTransactions) {
     const input = detailedInputIntoCSVLine(transaction)
-    Transaction.parseTransaction(input)
+    Bank.getInstance().parseTransaction(input)
 
     if (transaction.sender.input == "A") {
       balance -= transaction.amount.input;
@@ -291,7 +291,7 @@ describe('Bank statement', () => {
     }
   }
 
-  const accountStatement = Account.getAccountWithName('A').getAccountStatement()
+  const accountStatement = Bank.getInstance().getAccountWithName('A').getAccountStatement()
 
   it('should state the correct name and balance (on Side A)', () => {
     expect(accountStatement).toMatch(
