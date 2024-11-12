@@ -40,7 +40,7 @@ class Bank {
     const newTransaction = new Transaction(
       parts[1],
       parts[2],
-      Number(parts[4]),
+      parts[4],
       parts[0],
       parts[3]
     );

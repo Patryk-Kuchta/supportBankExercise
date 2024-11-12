@@ -9,7 +9,7 @@ class Transaction {
   private readonly date: Moment;
   private readonly narrative: string;
 
-  private constructor(
+  public constructor(
     origin: string,
     destination: string,
     amountString: string,
