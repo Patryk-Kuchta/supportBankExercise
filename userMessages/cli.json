@@ -1,6 +1,7 @@
 {
-  "help": "Available commands:\n\tLIST ALL\t\t\t- Lists each person's name and total amount owed or owed to them.\n\tLIST [Account] - Lists every transaction for the specified account by name.\n\tHELP\t\t\t- Shows this available commands list.\n\tQUIT\t\t\t- Exits the program.",
+  "help": "Available commands:\n\tLIST ALL\t\t\t- Lists each person's name and total amount owed or owed to them.\n\tLIST [Account] - Lists every transaction for the specified account by name.\n\tIMPORT FILE [filename]\t\t\t- Import a new file into the program.\n\tHELP\t\t\t- Shows this available commands list.\n\tQUIT\t\t\t- Exits the program.",
   "unknown": "Unknown command. Type HELP for a list of available commands.",
   "prompt": "Enter command: ",
+  "fileDoesNotExist": "The selected file does not exist.",
   "farewell": "Goodbye!"
 }
