@@ -3,17 +3,21 @@ import loadFile from "../../src/parsers/loadFile"
 import { DetailedInput } from "./Types"
 import Transaction from "../../src/models/Transaction"
 
-export function feedOneCSVEntryToTheSystem(detailedInput: DetailedInput) {
-  const entry = `${detailedInput.date.input},${detailedInput.sender.input},` +
-    `${detailedInput.receiver.input},${detailedInput.narrative.input},` +
-    `${detailedInput.amount.input}`;
+export function feedCSVEntriesToTheSystem(detailedInputs: DetailedInput[]) {
+  let entries = "";
 
-  return feedOneCSVLineToTheSystem(entry);
+  for (const input of detailedInputs) {
+    entries += `${input.date.input},${input.sender.input},` +
+      `${input.receiver.input},${input.narrative.input},` +
+      `${input.amount.input}\n`
+  }
+
+  return feedCSVToTheSystem(entries);
 }
 
-export function feedOneCSVLineToTheSystem(input: string) : Transaction {
+export function feedCSVToTheSystem(input: string) : Transaction[] {
   input = '\n' + input; // add simulated headers
   const tempDataDir = './data/test/temp.csv';
   fs.writeFileSync(tempDataDir, input);
-  return loadFile(tempDataDir)[0];
+  return loadFile(tempDataDir);
 }

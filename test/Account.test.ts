@@ -1,6 +1,6 @@
 import Account from "../src/models/Account"
 import { DetailedInput } from "./helpers/Types"
-import { detailedInputIntoCSVLine, feedOneCSVLineToTheSystem } from "./helpers/CSVhelpers"
+import { feedCSVEntriesToTheSystem } from "./helpers/CSVhelpers"
 
 describe('Account', () => {
   it('should prevent creating an account with an existing name', () => {
@@ -66,8 +66,7 @@ describe('Bank statement', () => {
   let balance = 0;
 
   for (const transaction of simulatedTransactions) {
-    const input = detailedInputIntoCSVLine(transaction)
-    feedOneCSVLineToTheSystem(input)
+    feedCSVEntriesToTheSystem([transaction])
 
     if (transaction.sender.input == "A") {
       balance -= transaction.amount.input;
