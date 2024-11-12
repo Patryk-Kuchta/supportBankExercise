@@ -1,17 +1,18 @@
-import Account from "./Account";
+import Bank from "./Bank";
 
 export function listAll() {
   console.log(
-    Account.getAccountNames()
+    Bank.getInstance()
+      .getAccountNames()
       .map((account) => {
-        return Account.getAccountWithName(account).toString();
+        return Bank.getInstance().getAccountWithName(account).toString();
       })
       .join("\n")
   );
 }
 
 export function listAccount(accountName: string) {
-  let accountFound = Account.getAccountWithName(accountName);
+  let accountFound = Bank.getInstance().getAccountWithName(accountName);
 
   if (accountFound) {
     console.log(accountFound.getAccountStatement());

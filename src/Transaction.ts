@@ -8,7 +8,7 @@ class Transaction {
   private readonly date: Moment;
   private readonly narrative: string;
 
-  private constructor(
+  public constructor(
     origin: Account,
     destination: Account,
     amount: number,
@@ -35,26 +35,6 @@ class Transaction {
 
   public getAmountDue(): number {
     return this.amount;
-  }
-
-  public static parseTransaction(csvEntry: string) {
-    const parts = csvEntry.split(",");
-    const origin = Account.getAccountWithName(parts[1], true);
-    const destination = Account.getAccountWithName(parts[2], true);
-
-    const newTransaction = new Transaction(
-      origin,
-      destination,
-      Number(parts[4]),
-      parts[0],
-      parts[3]
-    );
-
-    return {
-      transaction: newTransaction,
-      origin,
-      destination,
-    };
   }
 }
 

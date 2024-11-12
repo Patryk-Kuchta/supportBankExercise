@@ -8,17 +8,11 @@ class Account {
   private readonly outgoingTransactions: Transaction[];
 
   public constructor(name: string, balance = 0) {
-    if (Account.nameToAccount.has(name)) {
-      throw new Error("Account with this name already exists");
-    }
-
     this.name = name;
     this.balance = balance;
 
     this.incomingTransactions = [];
     this.outgoingTransactions = [];
-
-    Account.nameToAccount.set(name, this);
   }
 
   public toString(): string {
@@ -39,16 +33,6 @@ class Account {
     return result;
   }
 
-  private static nameToAccount: Map<string, Account> = new Map();
-
-  public static getAccountWithName(name: string, createIfNotExistent = false) {
-    if (Account.nameToAccount.has(name)) {
-      return Account.nameToAccount.get(name);
-    } else if (createIfNotExistent) {
-      return new Account(name);
-    }
-  }
-
   public addIncomingTransaction(transaction: Transaction) {
     this.balance += transaction.getAmountDue();
     this.incomingTransactions.push(transaction);
@@ -57,10 +41,6 @@ class Account {
   public addOutgoingTransaction(transaction: Transaction) {
     this.balance -= transaction.getAmountDue();
     this.outgoingTransactions.push(transaction);
-  }
-
-  public static getAccountNames() {
-    return Array.from(this.nameToAccount.keys());
   }
 }
 

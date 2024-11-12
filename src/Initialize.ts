@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import Transaction from "./Transaction";
+import Bank from "./Bank";
 
 function initialize() {
   function loadTheTransactionFile(filename: string) {
@@ -7,7 +7,7 @@ function initialize() {
 
     for (let line of data.split("\n").slice(1)) {
       if (line.length > 0) {
-        Transaction.parseTransaction(line);
+        Bank.getInstance().parseTransaction(line);
       }
     }
   }
