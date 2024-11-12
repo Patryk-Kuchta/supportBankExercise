@@ -30,7 +30,6 @@ const parserPreSets = [
     parserName: 'XML',
     feedMethod: feedOneXMLEntryToTheSystem,
     formatDate: (dateStr: string) => {
-      // Parse the date in DD/MM/YYYY format
       const date = moment(dateStr, "DD/MM/YYYY");
       if (!date.isValid()) {
         throw new Error("Invalid date format");
@@ -38,12 +37,10 @@ const parserPreSets = [
 
       const excelEpoch = moment("1900-01-01", "YYYY-MM-DD");
 
-      // Calculate the difference in days between the date and the Excel epoch
-      let serialNumber = date.diff(excelEpoch, "days") + 1; // +1 to match Excel's start at 1
+      let serialNumber = date.diff(excelEpoch, "days");
 
-      // Adjust for Excel’s leap year bug
       if (date.isAfter("1900-02-28")) {
-        serialNumber += 1;
+        serialNumber += 1; // Excels leap year bug
       }
 
       return serialNumber.toString();
