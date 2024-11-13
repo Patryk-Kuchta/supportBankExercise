@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import { Moment } from "moment";
 
 class Transaction {
   private readonly originName: string;
@@ -11,13 +11,13 @@ class Transaction {
     origin: string,
     destination: string,
     amount: number,
-    dateString: string,
+    date: Moment,
     narrative: string
   ) {
     this.originName = origin;
     this.destinationNAme = destination;
     this.amount = amount;
-    this.date = moment(dateString, "DD/MM/YYYY");
+    this.date = date;
     this.narrative = narrative;
   }
 

@@ -2,6 +2,16 @@ import { promptCLLoop } from "readline-sync";
 import { listAccount, listAll } from "./UserActions";
 import userCLIMessages from "../userMessages/cli.json";
 import LoadTransactionFile from "./LoadTransactionFile";
+import log4js from "log4js";
+
+log4js.configure({
+  appenders: {
+    file: { type: "fileSync", filename: "logs/debug.log" },
+  },
+  categories: {
+    default: { appenders: ["file"], level: "debug" },
+  },
+});
 
 LoadTransactionFile("./data/Transactions2014.csv");
 
