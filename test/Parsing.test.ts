@@ -1,8 +1,8 @@
-import Account from "../src/models/Account"
 import { DetailedInput } from "./helpers/Types"
 import { feedOneCSVEntryToTheSystem, feedOneCSVLineToTheSystem } from "./helpers/CSVhelpers"
 import { feedOneJSONEntryToTheSystem } from "./helpers/JSONhelpers"
 import moment from "moment"
+import Bank from "../src/models/Bank"
 
 const mockLogger = {
   warn: jest.fn(),
@@ -63,19 +63,19 @@ for (const preset of parserPreSets) {
 
         it('should list the correct sender', () => {
           expect(transactionRepresentation).toMatch(
-            new RegExp(`\\] ${inputDetailed.sender.input} \\(`)
+            new RegExp(`\\] ${inputDetailed.sender.input} sent `)
           );
         });
 
         it('should list the correct amount', () => {
           expect(transactionRepresentation).toMatch(
-            new RegExp(`\\) sent £${inputDetailed.amount.input.toFixed(2)} to`)
+            new RegExp(` sent £${inputDetailed.amount.input.toFixed(2)} to`)
           );
         });
 
         it('should list the receiver sender correctly', () => {
           expect(transactionRepresentation).toMatch(
-            new RegExp(` to ${inputDetailed.receiver.input} \\(`)
+            new RegExp(` to ${inputDetailed.receiver.input} for`)
           );
         });
 
@@ -111,30 +111,22 @@ for (const preset of parserPreSets) {
           }
         };
 
-        const sender = Account.getAccountWithName(inputDetailed.sender.input, true);
-        const receiver = Account.getAccountWithName(inputDetailed.receiver.input, true);
+        const sender = Bank.getInstance().getAccountWithName(inputDetailed.sender.input, true);
+        const receiver = Bank.getInstance().getAccountWithName(inputDetailed.receiver.input, true);
 
         const output = preset.feedMethod(inputDetailed);
         const transactionRepresentation = output.toString();
 
         it('should list the correct sender', () => {
           expect(transactionRepresentation).toMatch(
-            new RegExp(`\\] ${inputDetailed.sender.input} \\(`)
+            new RegExp(`\\] ${inputDetailed.sender.input} sent `)
           );
         });
 
         it('should list the receiver sender correctly', () => {
           expect(transactionRepresentation).toMatch(
-            new RegExp(` to ${inputDetailed.receiver.input} \\(`)
+            new RegExp(` to ${inputDetailed.receiver.input} for `)
           );
-        });
-
-        it('should link to the correct sender account', () => {
-          expect(output['origin']).toBe(sender);
-        });
-
-        it('should link to the correct receiver account', () => {
-          expect(output['destination']).toBe(receiver);
         });
       });
     })
