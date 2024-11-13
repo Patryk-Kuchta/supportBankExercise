@@ -1,9 +1,12 @@
 import { promptCLLoop } from "readline-sync";
-import { listAccount, listAll } from "./UserActions";
+import { listAccount, listAll } from "./helpers/UserActions";
 import userCLIMessages from "../userMessages/cli.json";
-import LoadTransactionFile from "./LoadTransactionFile";
+import loadFile from "./parsers/loadFile";
+import fs from "fs";
 
-LoadTransactionFile("./data/Transactions2014.csv");
+loadFile("./data/Transactions2014.csv");
+loadFile("./data/DodgyTransactions2015reviewed.csv");
+loadFile("./data/Transactions2013.json");
 
 promptCLLoop({
   HELP: function () {
@@ -19,6 +22,13 @@ promptCLLoop({
       console.log(fullUserName);
 
       listAccount(fullUserName);
+    }
+  },
+  IMPORT: function (filename) {
+    if (fs.existsSync(filename)) {
+      loadFile(filename);
+    } else {
+      console.log(userCLIMessages.fileDoesNotExist);
     }
   },
   QUIT: function () {

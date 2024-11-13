@@ -4,3 +4,4 @@ dist
 .idea
 .husky
 logs
+data/test
