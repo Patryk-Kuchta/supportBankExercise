@@ -71,7 +71,7 @@ describe('Bank statement', () => {
   let balance = 0;
 
   for (const transaction of simulatedTransactions) {
-    const input = feedOneCSVEntryToTheSystem(transaction);
+    feedOneCSVEntryToTheSystem(transaction);
 
     if (transaction.sender.input == "A") {
       balance -= transaction.amount.input;

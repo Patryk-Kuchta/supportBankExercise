@@ -111,8 +111,8 @@ for (const preset of parserPreSets) {
           }
         };
 
-        const sender = Bank.getInstance().getAccountWithName(inputDetailed.sender.input, true);
-        const receiver = Bank.getInstance().getAccountWithName(inputDetailed.receiver.input, true);
+        Bank.getInstance().getAccountWithName(inputDetailed.sender.input, true);
+        Bank.getInstance().getAccountWithName(inputDetailed.receiver.input, true);
 
         const output = preset.feedMethod(inputDetailed);
         const transactionRepresentation = output.toString();
