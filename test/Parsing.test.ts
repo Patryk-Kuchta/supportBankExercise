@@ -152,6 +152,84 @@ for (const preset of parserPreSets) {
       });
     })
 
+    describe('multiple at once', () => {
+      const inputDetailed: DetailedInput[] = [{
+        date: {
+          input: preset.formatDate("01/02/2008"),
+          output: "01 Feb 2008"
+        },
+        sender: {
+          input: "Main Recipient"
+        },
+        receiver: {
+          input: "Receiver B"
+        },
+        narrative: {
+          input: "Intending to test the system"
+        },
+        amount: {
+          input: 2.01
+        }
+      }, {
+        date: {
+          input: preset.formatDate("05/04/1999"),
+          output: "05 Apr 1999"
+        },
+        sender: {
+          input: "Sender C"
+        },
+        receiver: {
+          input: "Receiver G"
+        },
+        narrative: {
+          input: "With the intent of testing the system again"
+        },
+        amount: {
+          input: 72.81
+        }
+      }
+      ];
+
+      const outputs = preset.feedMethod(inputDetailed);
+
+      for (const index in inputDetailed) {
+        const transactionRepresentation = outputs[index].toString();
+        it("should start with the correct date", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(`^\\[${inputDetailed[index].date.output}\\] `)
+          )
+        })
+
+        it("should list the correct sender", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(`\\] ${inputDetailed[index].sender.input} sent `)
+          )
+        })
+
+        it("should list the correct amount", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(` sent £${inputDetailed[index].amount.input.toFixed(2)} to`)
+          )
+        })
+
+        it("should list the receiver sender correctly", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(` to ${inputDetailed[index].receiver.input} for `)
+          )
+        })
+
+        it("should list the correct narrative", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(` for "${inputDetailed[index].narrative.input}"\$`)
+          )
+        })
+
+        it("should store the correct amount", () => {
+          expect(outputs[index].getAmountDue()).toBeCloseTo(inputDetailed[index].amount.input)
+        })
+      }
+    });
+
     describe('invalid transactions', () => {
 
       describe('invalid date', () => {
