@@ -1,11 +1,10 @@
-import { promptCLLoop } from "readline-sync"
+import { promptCLLoop } from "readline-sync";
 import { listAccount, listAll } from "./helpers/UserActions";
 import userCLIMessages from "../userMessages/cli.json";
 import loadFile from "./parsers/loadFile";
 import fs from "fs";
-import LoadTransactionFile from "./LoadTransactionFile";
 
-LoadTransactionFile("./data/Transactions2014.csv");
+loadFile("./data/Transactions2014.csv");
 
 promptCLLoop({
   HELP: function () {
@@ -23,7 +22,7 @@ promptCLLoop({
       listAccount(fullUserName);
     }
   },
-  IMPORT: function(filename) {
+  IMPORT: function (filename) {
     if (fs.existsSync(filename)) {
       loadFile(filename);
     } else {

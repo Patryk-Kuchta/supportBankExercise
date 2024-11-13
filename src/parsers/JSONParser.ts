@@ -1,7 +1,7 @@
 import RecordParser from "./RecordParser";
 import Transaction from "../models/Transaction";
-import Account from "../models/Account";
 import moment from "moment";
+import Bank from "../models/Bank";
 
 type expectedJSONEntry = {
   Date: string;
@@ -23,12 +23,12 @@ class JSONParser extends RecordParser {
         this.warnUserAboutDateFormat(entry.Date);
       }
 
-      const origin = Account.getAccountWithName(entry.FromAccount, true);
-      const destination = Account.getAccountWithName(entry.ToAccount, true);
+      Bank.getInstance().getAccountWithName(entry.FromAccount, true);
+      Bank.getInstance().getAccountWithName(entry.ToAccount, true);
 
       const newTransaction = new Transaction(
-        origin,
-        destination,
+        entry.FromAccount,
+        entry.ToAccount,
         entry.Amount,
         date,
         entry.Narrative

@@ -1,5 +1,4 @@
-import Bank from "./Bank";
-import Account from "../models/Account";
+import Bank from "../models/Bank";
 
 export function listAll() {
   console.log(
