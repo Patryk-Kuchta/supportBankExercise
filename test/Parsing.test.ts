@@ -1,8 +1,9 @@
 import { DetailedInput } from "./helpers/Types"
-import { feedOneCSVEntryToTheSystem, feedOneCSVLineToTheSystem } from "./helpers/CSVhelpers"
-import { feedOneJSONEntryToTheSystem } from "./helpers/JSONhelpers"
 import moment from "moment"
 import Bank from "../src/models/Bank"
+import { feedCSVEntriesToTheSystem, feedCSVToTheSystem } from "./helpers/CSVhelpers"
+import { feedXMLEntriesToTheSystem } from "./helpers/XMLhelpers"
+import { feedJSONEntriesToTheSystem } from "./helpers/JSONhelpers"
 
 const mockLogger = {
   warn: jest.fn(),
@@ -16,14 +17,34 @@ jest.mock('log4js', () => ({
 const parserPreSets = [
   {
     parserName: 'CSV',
-    feedMethod: feedOneCSVEntryToTheSystem,
+    feedMethod: feedCSVEntriesToTheSystem,
     formatDate: (dateString: string) => dateString
   },
   {
     parserName: 'JSON',
-    feedMethod: feedOneJSONEntryToTheSystem,
+    feedMethod: feedJSONEntriesToTheSystem,
     formatDate: (dateString: string) =>
       moment(dateString, "DD/MM/YYYY").format("YYYY-MM-DDTHH:mm:ss")
+  },
+  {
+    parserName: 'XML',
+    feedMethod: feedXMLEntriesToTheSystem,
+    formatDate: (dateStr: string) => {
+      const date = moment(dateStr, "DD/MM/YYYY");
+      if (!date.isValid()) {
+        throw new Error("Invalid date format");
+      }
+
+      const excelEpoch = moment("1900-01-01", "YYYY-MM-DD");
+
+      let serialNumber = date.diff(excelEpoch, "days");
+
+      if (date.isAfter("1900-02-28")) {
+        serialNumber += 1; // Excels leap year bug
+      }
+
+      return serialNumber.toString();
+    }
   }
 ]
 
@@ -52,7 +73,7 @@ for (const preset of parserPreSets) {
           }
         };
 
-        const output = preset.feedMethod(inputDetailed);
+        const output = preset.feedMethod([inputDetailed])[0];
         const transactionRepresentation = output.toString();
 
         it('should start with the correct date', () => {
@@ -114,7 +135,7 @@ for (const preset of parserPreSets) {
         Bank.getInstance().getAccountWithName(inputDetailed.sender.input, true);
         Bank.getInstance().getAccountWithName(inputDetailed.receiver.input, true);
 
-        const output = preset.feedMethod(inputDetailed);
+        const output = preset.feedMethod([inputDetailed])[0];
         const transactionRepresentation = output.toString();
 
         it('should list the correct sender', () => {
@@ -130,6 +151,84 @@ for (const preset of parserPreSets) {
         });
       });
     })
+
+    describe('multiple at once', () => {
+      const inputDetailed: DetailedInput[] = [{
+        date: {
+          input: preset.formatDate("01/02/2008"),
+          output: "01 Feb 2008"
+        },
+        sender: {
+          input: "Main Recipient"
+        },
+        receiver: {
+          input: "Receiver B"
+        },
+        narrative: {
+          input: "Intending to test the system"
+        },
+        amount: {
+          input: 2.01
+        }
+      }, {
+        date: {
+          input: preset.formatDate("05/04/1999"),
+          output: "05 Apr 1999"
+        },
+        sender: {
+          input: "Sender C"
+        },
+        receiver: {
+          input: "Receiver G"
+        },
+        narrative: {
+          input: "With the intent of testing the system again"
+        },
+        amount: {
+          input: 72.81
+        }
+      }
+      ];
+
+      const outputs = preset.feedMethod(inputDetailed);
+
+      for (const index in inputDetailed) {
+        const transactionRepresentation = outputs[index].toString();
+        it("should start with the correct date", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(`^\\[${inputDetailed[index].date.output}\\] `)
+          )
+        })
+
+        it("should list the correct sender", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(`\\] ${inputDetailed[index].sender.input} sent `)
+          )
+        })
+
+        it("should list the correct amount", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(` sent £${inputDetailed[index].amount.input.toFixed(2)} to`)
+          )
+        })
+
+        it("should list the receiver sender correctly", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(` to ${inputDetailed[index].receiver.input} for `)
+          )
+        })
+
+        it("should list the correct narrative", () => {
+          expect(transactionRepresentation).toMatch(
+            new RegExp(` for "${inputDetailed[index].narrative.input}"\$`)
+          )
+        })
+
+        it("should store the correct amount", () => {
+          expect(outputs[index].getAmountDue()).toBeCloseTo(inputDetailed[index].amount.input)
+        })
+      }
+    });
 
     describe('invalid transactions', () => {
 
@@ -154,7 +253,7 @@ for (const preset of parserPreSets) {
         };
 
         it('should state that the date is invalid', () => {
-          const output = preset.feedMethod(inputDetailed);
+          const output = preset.feedMethod([inputDetailed])[0];
           const transactionRepresentation = output.toString();
 
           expect(transactionRepresentation).toMatch(
@@ -167,7 +266,7 @@ for (const preset of parserPreSets) {
           const loggerWarnSpy = jest.spyOn(mockLogger, 'warn');
           const consoleWarnSpy = jest.spyOn(console, 'warn');
 
-          preset.feedMethod(inputDetailed);
+          preset.feedMethod([inputDetailed])[0];
 
           expect(loggerWarnSpy).toHaveBeenCalled();
           expect(consoleWarnSpy).toHaveBeenCalled();
@@ -184,7 +283,7 @@ describe('Test the invalid number case', () => {
   const inputLine = "01.01.1970,A,B,C,1️⃣"
 
   it('should throw a TypeError', () => {
-    expect(() => feedOneCSVLineToTheSystem(inputLine)).toThrow(TypeError);
+    expect(() => feedCSVToTheSystem(inputLine)).toThrow(TypeError);
   });
 
   it('should output an error to the log file', () => {
@@ -192,7 +291,7 @@ describe('Test the invalid number case', () => {
 
     // Trigger the error to check the logging
     try {
-      feedOneCSVLineToTheSystem(inputLine);
+      feedCSVToTheSystem(inputLine);
     } catch (error) {}
 
     expect(loggerErrorSpy).toHaveBeenCalled();

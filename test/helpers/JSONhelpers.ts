@@ -3,19 +3,25 @@ import loadFile from "../../src/parsers/loadFile"
 import { DetailedInput } from "./Types"
 import Transaction from "../../src/models/Transaction"
 
-export function feedOneJSONEntryToTheSystem(detailedInput: DetailedInput): Transaction {
+export function feedJSONEntriesToTheSystem(detailedInputs: DetailedInput[]): Transaction[] {
 
   const tempDataDir = './data/test/temp.json';
 
-  const input = [{
-    "Date": detailedInput.date.input,
-    "FromAccount": detailedInput.sender.input,
-    "ToAccount": detailedInput.receiver.input,
-    "Narrative": detailedInput.narrative.input,
-    "Amount": Number(detailedInput.amount.input)
-  }]
+  const inputs = [];
 
-  fs.writeFileSync(tempDataDir, JSON.stringify(input))
+  for (const input of detailedInputs) {
+    inputs.push(
+      {
+        "Date": input.date.input,
+        "FromAccount": input.sender.input,
+        "ToAccount": input.receiver.input,
+        "Narrative": input.narrative.input,
+        "Amount": Number(input.amount.input)
+      }
+    )
+  }
 
-  return loadFile(tempDataDir)[0];
+  fs.writeFileSync(tempDataDir, JSON.stringify(inputs))
+
+  return loadFile(tempDataDir);
 }

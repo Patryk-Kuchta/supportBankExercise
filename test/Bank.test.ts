@@ -1,7 +1,7 @@
 import Bank from "../src/models/Bank"
 import Account from "../src/models/Account"
 import { DetailedInput } from "./helpers/Types"
-import { feedOneCSVEntryToTheSystem } from "./helpers/CSVhelpers"
+import { feedCSVEntriesToTheSystem } from "./helpers/CSVhelpers"
 
 
 describe('Bank', () => {
@@ -71,7 +71,7 @@ describe('Bank statement', () => {
   let balance = 0;
 
   for (const transaction of simulatedTransactions) {
-    feedOneCSVEntryToTheSystem(transaction);
+    feedCSVEntriesToTheSystem([transaction]);
 
     if (transaction.sender.input == "A") {
       balance -= transaction.amount.input;

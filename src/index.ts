@@ -7,6 +7,7 @@ import fs from "fs";
 loadFile("./data/Transactions2014.csv");
 loadFile("./data/DodgyTransactions2015reviewed.csv");
 loadFile("./data/Transactions2013.json");
+loadFile("./data/Transactions2012.xml");
 
 promptCLLoop({
   HELP: function () {
