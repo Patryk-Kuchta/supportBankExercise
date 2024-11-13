@@ -1,5 +1,4 @@
 import moment, { Moment } from "moment";
-import Account from "./Account";
 import log4js from "log4js";
 
 class Transaction {
@@ -12,17 +11,17 @@ class Transaction {
   public constructor(
     origin: string,
     destination: string,
-    amountString: string,
+    amount: string,
     dateString: string,
     narrative: string
   ) {
     this.originName = origin;
     this.destinationNAme = destination;
 
-    this.amount = Number(amountString);
+    this.amount = Number(amount);
     if (Number.isNaN(this.amount)) {
       const logger = log4js.getLogger("logs/debug.log");
-      const errorMsg = `Provided amount: ${amountString} is not a valid number`;
+      const errorMsg = `Provided amount: ${amount} is not a valid number`;
       logger.error(errorMsg);
       throw new TypeError(errorMsg);
     }
