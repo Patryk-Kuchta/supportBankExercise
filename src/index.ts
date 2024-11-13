@@ -5,6 +5,8 @@ import loadFile from "./parsers/loadFile";
 import fs from "fs";
 
 loadFile("./data/Transactions2014.csv");
+loadFile("./data/DodgyTransactions2015reviewed.csv");
+loadFile("./data/Transactions2013.json");
 
 promptCLLoop({
   HELP: function () {
