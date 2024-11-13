@@ -1,5 +1,7 @@
 import Account from "./Account";
 import Transaction from "./Transaction";
+import log4js from "log4js";
+import moment from "moment";
 
 class Bank {
   private static instance: Bank = null;
@@ -37,11 +39,27 @@ class Bank {
     const origin = this.getAccountWithName(parts[1], true);
     const destination = this.getAccountWithName(parts[2], true);
 
+    const parsedAmount = Number(parts[4]);
+    if (Number.isNaN(parsedAmount)) {
+      const logger = log4js.getLogger("logs/debug.log");
+      const errorMsg = `Provided amount: ${parts[4]} is not a valid number`;
+      logger.error(errorMsg);
+      throw new TypeError(errorMsg);
+    }
+
+    const parsedDate = moment(parts[0], "DD/MM/YYYY");
+    if (!parsedDate.isValid()) {
+      const logger = log4js.getLogger("logs/debug.log");
+      const errorMsg = `Provided date: ${parts[0]} is not valid`;
+      logger.warn(errorMsg);
+      console.warn(errorMsg);
+    }
+
     const newTransaction = new Transaction(
       parts[1],
       parts[2],
-      parts[4],
-      parts[0],
+      parsedAmount,
+      parsedDate,
       parts[3]
     );
 
