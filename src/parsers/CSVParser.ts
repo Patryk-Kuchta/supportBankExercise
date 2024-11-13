@@ -23,8 +23,11 @@ class CSVParser extends RecordParser {
         }
 
         // ensure they exist
-        Bank.getInstance().getAccountWithName(parts[1], true);
-        Bank.getInstance().getAccountWithName(parts[2], true);
+        const origin = Bank.getInstance().getAccountWithName(parts[1], true);
+        const description = Bank.getInstance().getAccountWithName(
+          parts[2],
+          true
+        );
 
         const newTransaction = new Transaction(
           parts[1],
@@ -33,6 +36,9 @@ class CSVParser extends RecordParser {
           date,
           parts[3]
         );
+
+        origin.addOutgoingTransaction(newTransaction);
+        description.addIncomingTransaction(newTransaction);
 
         parsedTransactions.push(newTransaction);
       }

@@ -23,8 +23,14 @@ class JSONParser extends RecordParser {
         this.warnUserAboutDateFormat(entry.Date);
       }
 
-      Bank.getInstance().getAccountWithName(entry.FromAccount, true);
-      Bank.getInstance().getAccountWithName(entry.ToAccount, true);
+      const origin = Bank.getInstance().getAccountWithName(
+        entry.FromAccount,
+        true
+      );
+      const description = Bank.getInstance().getAccountWithName(
+        entry.ToAccount,
+        true
+      );
 
       const newTransaction = new Transaction(
         entry.FromAccount,
@@ -33,6 +39,9 @@ class JSONParser extends RecordParser {
         date,
         entry.Narrative
       );
+
+      origin.addOutgoingTransaction(newTransaction);
+      description.addIncomingTransaction(newTransaction);
 
       parsedTransactions.push(newTransaction);
     }
