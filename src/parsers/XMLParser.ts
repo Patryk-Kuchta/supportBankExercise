@@ -3,6 +3,7 @@ import RecordParser from "./RecordParser";
 import { XMLParser } from "fast-xml-parser";
 import Account from "../models/Account";
 import moment from "moment";
+import Bank from "../models/Bank";
 
 type SupportTransactionXMLRecord = {
   Description: string;
@@ -41,11 +42,11 @@ class XMLRecordParser extends RecordParser {
       : [dataAsObject.TransactionList.SupportTransaction];
 
     for (let supportTransaction of transactionList) {
-      const origin = Account.getAccountWithName(
+      const origin = Bank.getInstance().getAccountWithName(
         supportTransaction.Parties.From,
         true
       );
-      const destination = Account.getAccountWithName(
+      const destination = Bank.getInstance().getAccountWithName(
         supportTransaction.Parties.To,
         true
       );
@@ -61,12 +62,15 @@ class XMLRecordParser extends RecordParser {
       }
 
       const newTransaction = new Transaction(
-        origin,
-        destination,
+        supportTransaction.Parties.From,
+        supportTransaction.Parties.To,
         supportTransaction.Value,
         date,
         supportTransaction.Description
       );
+
+      origin.addOutgoingTransaction(newTransaction);
+      destination.addIncomingTransaction(newTransaction);
 
       parsedTransactions.push(newTransaction);
     }
